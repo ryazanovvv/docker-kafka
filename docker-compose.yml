@@ -37,7 +37,8 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
       KAFKA_NUM_PARTITIONS: 3
-      KAFKA_MIN_INSYNC.REPLICAS: 1
+      KAFKA_MIN_INSYNC_REPLICAS: 1
+      KAFKA_OFFSETS_COMMIT_REQUIRED_ACKS: -1
   kafka-2:
     image: confluentinc/cp-kafka:latest
     depends_on:
@@ -55,6 +56,7 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
       KAFKA_NUM_PARTITIONS: 3
       KAFKA_MIN_INSYNC.REPLICAS: 1
+      KAFKA_OFFSETS_COMMIT_REQUIRED_ACKS: -1
   kafka-3:
     image: confluentinc/cp-kafka:latest
     depends_on:
@@ -72,6 +74,7 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
       KAFKA_NUM_PARTITIONS: 3
       KAFKA_MIN_INSYNC.REPLICAS: 1
+      KAFKA_OFFSETS_COMMIT_REQUIRED_ACKS: -1
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     depends_on:
