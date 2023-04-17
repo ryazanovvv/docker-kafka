@@ -1,26 +1,44 @@
-version: '2'
+version: '3.7'
 services:
   zookeeper-1:
     image: confluentinc/cp-zookeeper:latest
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
     ports:
       - 22181:2181
+    volumes:
+      - ./zookeeper/1/data:/var/lib/zookeeper/data
+      - ./zookeeper/1/log:/var/lib/zookeeper/log
+    restart: always
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_SERVERS: zookeeper-1:22888:23888;zookeeper-2:32888:33888;zookeeper-3:42888:43888
   zookeeper-2:
     image: confluentinc/cp-zookeeper:latest
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
     ports:
       - 32181:2181
-  zookeeper-3:
-    image: confluentinc/cp-zookeeper:latest
+    volumes:
+      - ./zookeeper/2/data:/var/lib/zookeeper/data
+      - ./zookeeper/2/log:/var/lib/zookeeper/log
+    restart: always
     environment:
+      ZOOKEEPER_SERVER_ID: 2
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_SERVERS: zookeeper-1:22888:23888;zookeeper-2:32888:33888;zookeeper-3:42888:43888
+  zookeeper-3:
+    image: confluentinc/cp-zookeeper:latest
     ports:
       - 42181:2181
+    volumes:
+      - ./zookeeper/3/data:/var/lib/zookeeper/data
+      - ./zookeeper/3/log:/var/lib/zookeeper/log
+    restart: always
+    environment:
+      ZOOKEEPER_SERVER_ID: 3
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_SERVERS: zookeeper-1:22888:23888;zookeeper-2:32888:33888;zookeeper-3:42888:43888
   kafka-1:
     image: confluentinc/cp-kafka:latest
     depends_on:
@@ -29,6 +47,9 @@ services:
       - zookeeper-3
     ports:
       - 29092:29092
+    volumes:
+      - ./kafka/1/data:/var/lib/kafka/data
+    restart: always
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181,zookeeper-2:2181,zookeeper-3:2181
@@ -47,6 +68,9 @@ services:
       - zookeeper-3
     ports:
       - 39092:39092
+    volumes:
+      - ./kafka/2/data:/var/lib/kafka/data
+    restart: always
     environment:
       KAFKA_BROKER_ID: 2
       KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181,zookeeper-2:2181,zookeeper-3:2181
@@ -65,6 +89,9 @@ services:
       - zookeeper-3
     ports:
       - 49092:49092
+    volumes:
+      - ./kafka/3/data:/var/lib/kafka/data
+    restart: always
     environment:
       KAFKA_BROKER_ID: 3
       KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181,zookeeper-2:2181,zookeeper-3:2181
@@ -83,7 +110,8 @@ services:
       - kafka-3
     ports:
       - 28080:8080
-    environment:
-      DYNAMIC_CONFIG_ENABLED: true
     volumes:
       - ./kui/config.yml:/etc/kafkaui/dynamic_config.yaml
+    restart: always
+    environment:
+      DYNAMIC_CONFIG_ENABLED: true
