@@ -1,4 +1,4 @@
-version: '3.7'
+version: '3.9'
 services:
   zookeeper-1:
     image: confluentinc/cp-zookeeper:latest
@@ -13,6 +13,12 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
       ZOOKEEPER_SERVERS: zookeeper-1:22888:23888;zookeeper-2:32888:33888;zookeeper-3:42888:43888
+    healthcheck:
+      test: nc -z localhost 2181 || exit -1
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
   zookeeper-2:
     image: confluentinc/cp-zookeeper:latest
     ports:
@@ -26,6 +32,12 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
       ZOOKEEPER_SERVERS: zookeeper-1:22888:23888;zookeeper-2:32888:33888;zookeeper-3:42888:43888
+    healthcheck:
+      test: nc -z localhost 2181 || exit -1
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
   zookeeper-3:
     image: confluentinc/cp-zookeeper:latest
     ports:
@@ -39,12 +51,21 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
       ZOOKEEPER_SERVERS: zookeeper-1:22888:23888;zookeeper-2:32888:33888;zookeeper-3:42888:43888
+    healthcheck:
+      test: nc -z localhost 2181 || exit -1
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
   kafka-1:
     image: confluentinc/cp-kafka:latest
     depends_on:
-      - zookeeper-1
-      - zookeeper-2
-      - zookeeper-3
+      zookeeper-1:
+        condition: service_healthy
+      zookeeper-2:
+        condition: service_healthy
+      zookeeper-3:
+        condition: service_healthy
     ports:
       - 29092:29092
     volumes:
@@ -60,12 +81,21 @@ services:
       KAFKA_NUM_PARTITIONS: 3
       KAFKA_MIN_INSYNC_REPLICAS: 1
       KAFKA_OFFSETS_COMMIT_REQUIRED_ACKS: -1
+    healthcheck:
+      test: nc -z localhost 9092 || exit -1
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
   kafka-2:
     image: confluentinc/cp-kafka:latest
     depends_on:
-      - zookeeper-1
-      - zookeeper-2
-      - zookeeper-3
+      zookeeper-1:
+        condition: service_healthy
+      zookeeper-2:
+        condition: service_healthy
+      zookeeper-3:
+        condition: service_healthy
     ports:
       - 39092:39092
     volumes:
@@ -81,12 +111,22 @@ services:
       KAFKA_NUM_PARTITIONS: 3
       KAFKA_MIN_INSYNC.REPLICAS: 1
       KAFKA_OFFSETS_COMMIT_REQUIRED_ACKS: -1
+    healthcheck:
+      test: nc -z localhost 9092 || exit -1
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
   kafka-3:
     image: confluentinc/cp-kafka:latest
     depends_on:
-      - zookeeper-1
-      - zookeeper-2
-      - zookeeper-3
+    depends_on:
+      zookeeper-1:
+        condition: service_healthy
+      zookeeper-2:
+        condition: service_healthy
+      zookeeper-3:
+        condition: service_healthy
     ports:
       - 49092:49092
     volumes:
@@ -102,12 +142,21 @@ services:
       KAFKA_NUM_PARTITIONS: 3
       KAFKA_MIN_INSYNC.REPLICAS: 1
       KAFKA_OFFSETS_COMMIT_REQUIRED_ACKS: -1
+    healthcheck:
+      test: nc -z localhost 9092 || exit -1
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     depends_on:
-      - kafka-1
-      - kafka-2
-      - kafka-3
+      kafka-1:
+        condition: service_healthy
+      kafka-2:
+        condition: service_healthy
+      kafka-3:
+        condition: service_healthy
     ports:
       - 28080:8080
     volumes:
